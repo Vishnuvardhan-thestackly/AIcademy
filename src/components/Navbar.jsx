@@ -8,7 +8,7 @@ function Navbar({ onLoginClick }) {
   const handleSmoothScroll = useSmoothScroll()
 
   return (
-    <header className="motion-navbar h-[47px] shrink-0 bg-mint" data-aos="fade-down" data-aos-duration="650">
+    <header className="motion-navbar relative z-50 h-[47px] shrink-0 bg-mint" data-aos="fade-down" data-aos-duration="650">
       <nav
         aria-label="Primary navigation"
         className="mx-auto flex h-full items-center justify-between pl-[28px] pr-[20px]"

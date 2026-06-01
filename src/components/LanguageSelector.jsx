@@ -35,7 +35,7 @@ function LanguageSelector() {
         <div
           role="listbox"
           aria-label="Language options"
-          className="motion-dropdown absolute right-0 top-[47px] z-20 w-[216px] rounded-[8px] bg-mint py-[3px] text-left shadow-[0_10px_22px_rgba(0,0,0,0.08)]"
+          className="motion-dropdown absolute right-0 top-[47px] z-50 w-[216px] rounded-[8px] bg-mint py-[3px] text-left shadow-[0_10px_22px_rgba(0,0,0,0.08)]"
         >
           {languages.map((language) => (
             <button
