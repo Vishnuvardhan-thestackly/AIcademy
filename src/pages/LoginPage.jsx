@@ -110,7 +110,7 @@ function ForgotPasswordModal({ isOpen, onClose, onVerified }) {
         aria-modal="true"
         aria-labelledby="forgot-password-title"
         aria-describedby="forgot-password-description"
-        className="relative w-full max-w-[440px] origin-center scale-100 rounded-[16px] bg-white px-[36px] pb-[72px] pt-[62px] text-center shadow-[0_30px_90px_rgba(0,0,0,0.28)] transition-all duration-200"
+        className="relative w-full max-w-[440px] origin-center scale-100 rounded-[16px] bg-white px-[36px] pb-[72px] pt-[62px] text-center shadow-[0_30px_90px_rgba(0,0,0,0.28)] transition-all duration-200 max-[768px]:max-w-[calc(100vw-28px)] max-[768px]:px-[22px] max-[768px]:pb-[34px] max-[768px]:pt-[54px]"
       >
         <button
           ref={closeButtonRef}
@@ -594,7 +594,7 @@ function CreateAccountForm({ onLogin, onVerifyAccount }) {
   }
 
   return (
-    <div className="mx-auto w-[455px] origin-top animate-fade-rise [@media(max-height:820px)]:scale-[0.9] [@media(max-height:760px)]:scale-[0.84] [@media(max-height:700px)]:scale-[0.78]" data-aos="fade-up" data-aos-duration="700">
+    <div className="mx-auto w-[455px] origin-top animate-fade-rise [@media(max-height:820px)]:scale-[0.9] [@media(max-height:760px)]:scale-[0.84] [@media(max-height:700px)]:scale-[0.78] max-[768px]:w-full max-[768px]:max-w-[455px] max-[768px]:scale-100" data-aos="fade-up" data-aos-duration="700">
       <RegistrationTabs activeTab={registrationMethod} onTabChange={handleMethodChange} />
 
       <a href="#home" aria-label="Back to home" className="mx-auto mb-[16px] block h-[58px] w-[58px] overflow-hidden rounded-[7px] bg-brand">
@@ -639,7 +639,7 @@ function CreateAccountForm({ onLogin, onVerifyAccount }) {
           )}
         </div>
 
-        <div className="mt-[16px] grid grid-cols-2 gap-[13px]">
+        <div className="mt-[16px] grid grid-cols-2 gap-[13px] max-[480px]:grid-cols-1">
           <RegistrationPasswordField
             id="register-password"
             label="Password"
@@ -813,7 +813,7 @@ function VerifyAccountOtpForm({ onBack, onVerified }) {
   }
 
   return (
-    <div className="relative mx-auto flex h-full w-[475px] items-center">
+    <div className="relative mx-auto flex h-full w-[475px] items-center max-[768px]:w-full max-[768px]:max-w-[475px] max-[768px]:px-[18px]">
       <button
         type="button"
         onClick={onBack}
@@ -915,7 +915,7 @@ function SelectRoleForm({ onBack, onContinue }) {
   }
 
   return (
-    <div className="relative mx-auto flex h-full w-[475px] items-center">
+    <div className="relative mx-auto flex h-full w-[475px] items-center max-[768px]:w-full max-[768px]:max-w-[475px] max-[768px]:px-[18px]">
       <button
         type="button"
         onClick={onBack}
@@ -1004,7 +1004,7 @@ function StudentDetailsForm({ onBack, onContinue }) {
   }
 
   return (
-    <div className="relative mx-auto flex h-full w-[475px] items-center">
+    <div className="relative mx-auto flex h-full w-[475px] items-center max-[768px]:w-full max-[768px]:max-w-[475px] max-[768px]:px-[18px]">
       <button
         type="button"
         onClick={onBack}
@@ -1124,7 +1124,7 @@ function ParentVerificationForm({ onBack, onContinue }) {
   }
 
   return (
-    <div className="relative mx-auto flex h-full w-[475px] items-center">
+    <div className="relative mx-auto flex h-full w-[475px] items-center max-[768px]:w-full max-[768px]:max-w-[475px] max-[768px]:px-[18px]">
       <button
         type="button"
         onClick={onBack}
@@ -1240,7 +1240,7 @@ function TeacherVerificationForm({ onBack, onContinue }) {
   }
 
   return (
-    <div className="relative mx-auto flex h-full w-[475px] items-center">
+    <div className="relative mx-auto flex h-full w-[475px] items-center max-[768px]:w-full max-[768px]:max-w-[475px] max-[768px]:px-[18px]">
       <button
         type="button"
         onClick={onBack}
@@ -1335,7 +1335,7 @@ function ForgotPasswordForm({ onBack, onResetRequested }) {
   }
 
   return (
-    <div className="relative mx-auto flex h-full w-[475px] items-center">
+    <div className="relative mx-auto flex h-full w-[475px] items-center max-[768px]:w-full max-[768px]:max-w-[475px] max-[768px]:px-[18px]">
       <button
         type="button"
         onClick={onBack}
@@ -1509,7 +1509,7 @@ function OtpVerificationForm({ onBack, onVerified }) {
   const formattedTimer = `00:${String(secondsRemaining).padStart(2, '0')}`
 
   return (
-    <div className="relative mx-auto flex h-full w-[475px] items-center">
+    <div className="relative mx-auto flex h-full w-[475px] items-center max-[768px]:w-full max-[768px]:max-w-[475px] max-[768px]:px-[18px]">
       <button
         type="button"
         onClick={onBack}
@@ -1671,7 +1671,7 @@ function CreateNewPasswordForm({ onBack, onPasswordReset }) {
   }
 
   return (
-    <div className="relative mx-auto flex h-full w-[475px] items-center">
+    <div className="relative mx-auto flex h-full w-[475px] items-center max-[768px]:w-full max-[768px]:max-w-[475px] max-[768px]:px-[18px]">
       <button
         type="button"
         onClick={onBack}
@@ -2020,8 +2020,8 @@ function LoginPage({ isModal = false }) {
   }
 
   return (
-    <main className={`motion-modal ${isModal ? 'absolute inset-0 h-full' : 'min-h-svh'} flex bg-white font-sans text-[#111111]`}>
-      <section className={`flex w-[60%] min-w-[600px] justify-center overflow-hidden bg-[#fdfdfd] px-16 ${isRegisterView ? 'items-start pb-[24px] pt-[30px]' : isLoginView ? 'items-center py-0' : 'items-center py-4'}`}>
+    <main className={`motion-modal ${isModal ? 'absolute inset-0 h-full max-[768px]:overflow-y-auto' : 'min-h-svh'} flex bg-white font-sans text-[#111111] max-[768px]:block`}>
+      <section className={`flex w-[60%] min-w-[600px] justify-center overflow-hidden bg-[#fdfdfd] px-16 max-[768px]:min-h-svh max-[768px]:w-full max-[768px]:min-w-0 max-[768px]:px-[18px] ${isRegisterView ? 'items-start pb-[24px] pt-[30px] max-[768px]:pb-[24px] max-[768px]:pt-[24px]' : isLoginView ? 'items-center py-0 max-[768px]:py-[24px]' : 'items-center py-4 max-[768px]:py-[24px]'}`}>
         {authView === 'forgot' ? (
           <ForgotPasswordForm onBack={() => setAuthView('login')} onResetRequested={() => setAuthView('otp')} />
         ) : authView === 'otp' ? (
@@ -2041,7 +2041,7 @@ function LoginPage({ isModal = false }) {
         ) : authView === 'teacher-verification' ? (
           <TeacherVerificationForm onBack={() => setAuthView('select-role')} onContinue={handleRegistrationCompleted} />
         ) : (
-          <div className="w-[760px] origin-center px-[86px] pb-0 [@media(max-height:900px)]:scale-[0.86] [@media(max-height:820px)]:scale-[0.78] [@media(max-height:760px)]:scale-[0.72] [@media(max-height:680px)]:scale-[0.64]">
+          <div className="w-[760px] origin-center px-[86px] pb-0 [@media(max-height:900px)]:scale-[0.86] [@media(max-height:820px)]:scale-[0.78] [@media(max-height:760px)]:scale-[0.72] [@media(max-height:680px)]:scale-[0.64] max-[768px]:w-full max-[768px]:px-0 max-[768px]:scale-100">
             <a href="#home" aria-label="Back to home" className="mx-auto mb-[10px] block h-[52px] w-[52px] overflow-hidden rounded-[5px] bg-brand">
               <img src={homeLogo} alt="AIcademy" className="h-full w-full scale-[1.12] object-cover" />
             </a>
@@ -2186,7 +2186,7 @@ function LoginPage({ isModal = false }) {
             <span className="h-px flex-1 bg-[#ededed]" />
           </div>
 
-          <div className="grid grid-cols-3 gap-[10px]">
+          <div className="grid grid-cols-3 gap-[10px] max-[480px]:grid-cols-1">
             {['Microsoft', 'Google', 'Apple'].map((provider) => (
               <button
                 key={provider}
@@ -2226,7 +2226,7 @@ function LoginPage({ isModal = false }) {
         )}
       </section>
 
-      <section className="relative flex w-[40%] flex-none items-center justify-center overflow-hidden bg-white px-[7%] py-0">
+      <section className="relative flex w-[40%] flex-none items-center justify-center overflow-hidden bg-white px-[7%] py-0 max-[768px]:hidden">
         <div className="absolute inset-y-0 left-0 right-0 bg-mint" aria-hidden="true" />
         <img
           src={coverImage}

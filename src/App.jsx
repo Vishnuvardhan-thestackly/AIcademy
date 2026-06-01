@@ -19,14 +19,14 @@ function App() {
       once: true,
       mirror: false,
     })
-
-    return () => {
-      AOS.refreshHard()
-    }
   }, [])
 
   useEffect(() => {
-    window.requestAnimationFrame(() => AOS.refreshHard())
+    const frame = window.requestAnimationFrame(() => AOS.refreshHard())
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+    }
   }, [isLoginOpen])
 
   useEffect(() => {
@@ -41,74 +41,6 @@ function App() {
       document.body.style.overflow = previousOverflow
     }
   }, [isLoginOpen])
-
-  useEffect(() => {
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const finePointer = window.matchMedia('(pointer: fine)')
-
-    if (reducedMotion.matches || !finePointer.matches) {
-      return undefined
-    }
-
-    let activeElement = null
-    let frame = 0
-
-    const resetTilt = (element) => {
-      element?.style.removeProperty('--tilt-x')
-      element?.style.removeProperty('--tilt-y')
-      element?.style.removeProperty('--depth-x')
-      element?.style.removeProperty('--depth-y')
-    }
-
-    const handlePointerMove = (event) => {
-      const target = event.target.closest('button:not(:disabled), a[href], input, select, textarea, [role="option"], .motion-image')
-
-      if (!target) {
-        resetTilt(activeElement)
-        activeElement = null
-        return
-      }
-
-      if (activeElement && activeElement !== target) {
-        resetTilt(activeElement)
-      }
-
-      activeElement = target
-
-      if (frame) {
-        window.cancelAnimationFrame(frame)
-      }
-
-      frame = window.requestAnimationFrame(() => {
-        const rect = target.getBoundingClientRect()
-        const x = ((event.clientX - rect.left) / rect.width - 0.5) * 2
-        const y = ((event.clientY - rect.top) / rect.height - 0.5) * 2
-
-        target.style.setProperty('--tilt-x', `${(-y * 3).toFixed(2)}deg`)
-        target.style.setProperty('--tilt-y', `${(x * 4).toFixed(2)}deg`)
-        target.style.setProperty('--depth-x', `${(x * 4).toFixed(2)}px`)
-        target.style.setProperty('--depth-y', `${(y * 4).toFixed(2)}px`)
-      })
-    }
-
-    const handlePointerLeave = () => {
-      resetTilt(activeElement)
-      activeElement = null
-    }
-
-    document.addEventListener('pointermove', handlePointerMove, { passive: true })
-    document.addEventListener('pointerleave', handlePointerLeave)
-
-    return () => {
-      if (frame) {
-        window.cancelAnimationFrame(frame)
-      }
-
-      resetTilt(activeElement)
-      document.removeEventListener('pointermove', handlePointerMove)
-      document.removeEventListener('pointerleave', handlePointerLeave)
-    }
-  }, [])
 
   return (
     <>

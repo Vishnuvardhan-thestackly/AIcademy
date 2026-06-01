@@ -55,8 +55,6 @@ a {
 .motion-root {
   animation: page-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
   isolation: isolate;
-  perspective: 1200px;
-  transform-style: preserve-3d;
 }
 
 .motion-root::before,
@@ -93,7 +91,6 @@ a {
 .motion-navbar {
   animation: nav-drop 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
   position: relative;
-  transform-style: preserve-3d;
   will-change: transform, opacity;
 }
 
@@ -112,20 +109,17 @@ a {
 .motion-reveal {
   animation: reveal-up 680ms cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--motion-delay, 0ms);
-  transform-style: preserve-3d;
   will-change: transform, opacity;
 }
 
 .motion-dropdown {
   animation: dropdown-enter 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
   transform-origin: top right;
-  transform-style: preserve-3d;
   will-change: transform, opacity;
 }
 
 .motion-modal {
-  perspective: 1200px;
-  transform-style: preserve-3d;
+  isolation: isolate;
 }
 
 .motion-modal [data-aos] {
@@ -156,50 +150,23 @@ a {
 .motion-modal button:not(:disabled):not(.absolute),
 .motion-modal a {
   backface-visibility: hidden;
-  position: relative;
-  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translate3d(0, 0, 0);
-  transform-style: preserve-3d;
   transition-duration: 220ms;
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-  transition-property: color, background-color, border-color, box-shadow, opacity, transform, filter;
-  will-change: transform;
-}
-
-.motion-root button:not(:disabled)::after,
-.motion-root a::after,
-.motion-modal button:not(:disabled)::after,
-.motion-modal a::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background: linear-gradient(115deg, transparent 18%, rgba(255, 255, 255, 0.32) 48%, transparent 72%);
-  opacity: 0;
-  transform: translate3d(-42%, 0, 1px) skewX(-12deg);
-  transition: opacity 220ms cubic-bezier(0.22, 1, 0.36, 1), transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 .motion-root button:not(:disabled):hover,
 .motion-root a:hover,
 .motion-modal button:not(:disabled):hover,
 .motion-modal a:hover {
-  transform: perspective(900px) translate3d(var(--depth-x, 0), calc(var(--depth-y, 0) - 1px), 10px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
-}
-
-.motion-root button:not(:disabled):hover::after,
-.motion-root a:hover::after,
-.motion-modal button:not(:disabled):hover::after,
-.motion-modal a:hover::after {
-  opacity: 0.45;
-  transform: translate3d(42%, 0, 1px) skewX(-12deg);
+  transform: translateY(-1px);
 }
 
 .motion-root button:not(:disabled):active,
 .motion-root a:active,
 .motion-modal button:not(:disabled):active,
 .motion-modal a:active {
-  transform: perspective(900px) translate3d(0, 0, 3px) scale(0.99) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform: scale(0.99);
 }
 
 .motion-root input,
@@ -209,7 +176,6 @@ a {
 .motion-modal select,
 .motion-modal textarea {
   backface-visibility: hidden;
-  transform-style: preserve-3d;
   transition-duration: 220ms;
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   transition-property: border-color, box-shadow, background-color, opacity, transform;
@@ -221,13 +187,12 @@ a {
 .motion-modal input:focus,
 .motion-modal select:focus,
 .motion-modal textarea:focus {
-  transform: perspective(900px) translate3d(0, 0, 6px) scale(1.002) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform: scale(1.002);
 }
 
 .motion-image {
   animation: image-reveal 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
   backface-visibility: hidden;
-  transform-style: preserve-3d;
   transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1), filter 900ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform, opacity;
 }
@@ -238,7 +203,7 @@ a {
 }
 
 .motion-image:hover {
-  transform: perspective(1200px) translate3d(var(--depth-x, 0), var(--depth-y, 0), 18px) scale(1.015) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform: scale(1.015);
 }
 
 @supports (animation-timeline: view()) {
@@ -370,6 +335,46 @@ a {
   }
   50% {
     transform: translateY(-3px);
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    min-width: 0;
+  }
+
+  #root {
+    width: 100%;
+  }
+
+  .motion-root,
+  .motion-modal {
+    perspective: none;
+  }
+
+  .motion-root button:not(:disabled):hover,
+  .motion-root a:hover,
+  .motion-modal button:not(:disabled):hover,
+  .motion-modal a:hover,
+  .motion-root input:focus,
+  .motion-root select:focus,
+  .motion-root textarea:focus,
+  .motion-modal input:focus,
+  .motion-modal select:focus,
+  .motion-modal textarea:focus,
+  .motion-image:hover {
+    transform: none;
+  }
+
+  .motion-dropdown > .grid > button,
+  .motion-dropdown > .grid > a {
+    min-height: 44px;
+    width: 100%;
+  }
+
+  .motion-dropdown .relative > div[role="listbox"] {
+    left: 0;
+    right: auto;
   }
 }
 
