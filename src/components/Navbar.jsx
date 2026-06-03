@@ -2,11 +2,8 @@ import { useState } from 'react'
 import AuthButton from './AuthButton'
 import EducationLogo from './EducationLogo'
 import LanguageSelector from './LanguageSelector'
-import { navigationLinks } from '../utils/navigation'
-import useSmoothScroll from '../hooks/useSmoothScroll'
 
-function Navbar({ onLoginClick }) {
-  const handleSmoothScroll = useSmoothScroll()
+function Navbar({ onLoginClick, onSignupClick }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
@@ -16,14 +13,6 @@ function Navbar({ onLoginClick }) {
         className="mx-auto flex h-full items-center justify-between pl-[28px] pr-[20px] max-[768px]:px-[14px]"
       >
         <EducationLogo />
-
-        <div className="hidden" aria-hidden="true">
-          {navigationLinks.map((link) => (
-            <a key={link.href} href={link.href} onClick={handleSmoothScroll}>
-              {link.label}
-            </a>
-          ))}
-        </div>
 
         <div className="flex items-center gap-[10px] max-[768px]:hidden">
           <AuthButton
@@ -37,7 +26,7 @@ function Navbar({ onLoginClick }) {
           >
             Login
           </AuthButton>
-          <AuthButton href="#signup" variant="solid">
+          <AuthButton onClick={onSignupClick} variant="solid">
             Sign Up
           </AuthButton>
           <LanguageSelector />
@@ -73,7 +62,13 @@ function Navbar({ onLoginClick }) {
             >
               Login
             </AuthButton>
-            <AuthButton href="#signup" variant="solid">
+            <AuthButton
+              onClick={() => {
+                setIsMobileMenuOpen(false)
+                onSignupClick()
+              }}
+              variant="solid"
+            >
               Sign Up
             </AuthButton>
             <div className="flex justify-center">

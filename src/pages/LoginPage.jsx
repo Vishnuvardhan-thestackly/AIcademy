@@ -3,6 +3,12 @@ import AOS from 'aos'
 import homeLogo from '../assets/images/Home_Logo.jpeg'
 import coverImage from '../assets/images/Cover.png'
 import { countryDialCodes } from '../utils/countryDialCodes'
+import {
+  getPasswordStrength,
+  sanitizePhoneNumber,
+  sanitizeText,
+  validateRegistrationPayload,
+} from '../utils/registrationValidation'
 
 const captchaValues = ['oi$dykss', 'm7qP2a', 'rT9wLx', 'H4sK8n', 'z6YpQ3']
 const securityQuestions = [
@@ -12,7 +18,7 @@ const securityQuestions = [
   'What was your childhood nickname?',
 ]
 
-function ForgotPasswordModal({ isOpen, onClose, onVerified }) {
+function AccountBlockedModal({ isOpen, onClose, onVerified }) {
   const modalRef = useRef(null)
   const closeButtonRef = useRef(null)
   const [securityQuestion, setSecurityQuestion] = useState('')
@@ -65,10 +71,18 @@ function ForgotPasswordModal({ isOpen, onClose, onVerified }) {
   }, [isOpen, onClose])
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      return undefined
+    }
+
+    const resetFrame = window.requestAnimationFrame(() => {
       setSecurityQuestion('')
       setAnswer('')
       setErrors({})
+    })
+
+    return () => {
+      window.cancelAnimationFrame(resetFrame)
     }
   }, [isOpen])
 
@@ -96,7 +110,7 @@ function ForgotPasswordModal({ isOpen, onClose, onVerified }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-[18px] py-[28px] animate-fade-rise"
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/55 px-[18px] py-[28px] animate-fade-rise"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
@@ -110,37 +124,37 @@ function ForgotPasswordModal({ isOpen, onClose, onVerified }) {
         aria-modal="true"
         aria-labelledby="forgot-password-title"
         aria-describedby="forgot-password-description"
-        className="relative w-full max-w-[440px] origin-center scale-100 rounded-[16px] bg-white px-[36px] pb-[72px] pt-[62px] text-center shadow-[0_30px_90px_rgba(0,0,0,0.28)] transition-all duration-200 max-[768px]:max-w-[calc(100vw-28px)] max-[768px]:px-[22px] max-[768px]:pb-[34px] max-[768px]:pt-[54px]"
+        className="relative w-full max-w-[455px] origin-center scale-100 rounded-[14px] bg-white px-[32px] pb-[50px] pt-[58px] text-center shadow-[0_30px_90px_rgba(0,0,0,0.28)] transition-all duration-200 max-[768px]:max-w-[calc(100vw-28px)] max-[768px]:px-[22px] max-[768px]:pb-[36px] max-[768px]:pt-[54px]"
       >
         <button
           ref={closeButtonRef}
           type="button"
-          aria-label="Close forgot password popup"
+          aria-label="Close account blocked popup"
           onClick={onClose}
-          style={{ position: 'absolute', left: '30px', top: '30px' }}
-          className="absolute left-[30px] top-[30px] flex h-[28px] w-[28px] items-center justify-center text-[#111111] transition hover:text-[#1F8F4C] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1F8F4C]"
+          style={{ position: 'absolute', left: '28px', top: '28px' }}
+          className="absolute left-[28px] top-[28px] flex h-[26px] w-[26px] items-center justify-center text-[#111111] transition hover:text-[#1F8F4C] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1F8F4C] max-[768px]:left-[22px] max-[768px]:top-[22px]"
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[26px] w-[26px]">
+          <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[25px] w-[25px]">
             <path d="M5 5l14 14M19 5 5 19" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
           </svg>
         </button>
 
         <div className="mx-auto flex h-[62px] w-[62px] items-center justify-center rounded-full bg-[#ffd9df]">
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[35px] w-[35px] text-[#159454]">
+          <svg viewBox="0 0 24 24" aria-hidden="true" className="h-[32px] w-[32px] text-[#159454]">
             <path d="M12 4.2 21 19H3L12 4.2Z" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" />
             <path d="M12 9.5v4.4M12 16.8h.01" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" />
           </svg>
         </div>
 
-        <h2 id="forgot-password-title" className="mt-[16px] text-[24px] font-[700] leading-[30px] text-[#2d2d2d]">
+        <h2 id="forgot-password-title" className="mt-[16px] text-[26px] font-[800] leading-[32px] text-[#2d2d2d]">
           Account Blocked
         </h2>
-        <p id="forgot-password-description" className="mx-auto mt-[11px] max-w-[320px] text-[14px] font-[400] leading-[21px] text-[#6f6f6f]">
+        <p id="forgot-password-description" className="mx-auto mt-[10px] max-w-[350px] text-[15px] font-[400] leading-[22px] text-[#737373] max-[768px]:text-[14px] max-[768px]:leading-[21px]">
           Your account has been temporarily blocked due to multiple failed login attempts. To reset your password, please answer your security question.
         </p>
 
-        <form className="mt-[30px] text-left" onSubmit={handleSubmit} noValidate>
-          <label htmlFor="security-question" className="block text-[13px] font-[700] leading-[18px] text-[#17213c]">
+        <form className="mt-[26px] text-left" onSubmit={handleSubmit} noValidate>
+          <label htmlFor="security-question" className="block text-[14px] font-[800] leading-[19px] text-[#17213c]">
             Security Question
           </label>
           <select
@@ -150,7 +164,7 @@ function ForgotPasswordModal({ isOpen, onClose, onVerified }) {
               setSecurityQuestion(event.target.value)
               setErrors((current) => ({ ...current, securityQuestion: '' }))
             }}
-            className="mt-[9px] h-[38px] w-full rounded-[5px] border border-[#d8dde3] bg-white px-[14px] text-[13px] font-[400] text-[#111111] outline-none transition hover:border-[#bfc8d1] focus:border-[#1F8F4C] focus:ring-2 focus:ring-[#1F8F4C]/15"
+            className="mt-[10px] h-[42px] w-full rounded-[5px] border border-[#d8dde3] bg-white px-[16px] text-[14px] font-[400] text-[#111111] outline-none transition hover:border-[#bfc8d1] focus:border-[#1F8F4C] focus:ring-2 focus:ring-[#1F8F4C]/15"
           >
             <option value="">Select a Security Question</option>
             {securityQuestions.map((question) => (
@@ -174,7 +188,7 @@ function ForgotPasswordModal({ isOpen, onClose, onVerified }) {
             }}
             placeholder="Kumar Gandham"
             aria-label="Security answer"
-            className="mt-[11px] h-[38px] w-full rounded-[4px] border border-[#d8dde3] bg-white px-[14px] text-[13px] font-[400] text-[#111111] outline-none transition placeholder:text-[#596177] hover:border-[#bfc8d1] focus:border-[#1F8F4C] focus:ring-2 focus:ring-[#1F8F4C]/15"
+            className="mt-[12px] h-[42px] w-full rounded-[4px] border border-[#d8dde3] bg-white px-[16px] text-[14px] font-[400] text-[#111111] outline-none transition placeholder:text-[#596177] hover:border-[#bfc8d1] focus:border-[#1F8F4C] focus:ring-2 focus:ring-[#1F8F4C]/15"
           />
           {errors.answer && (
             <p className="mt-[6px] text-[12px] font-[500] text-[#d33f49]" role="alert">
@@ -184,13 +198,13 @@ function ForgotPasswordModal({ isOpen, onClose, onVerified }) {
 
           <button
             type="submit"
-            className="mt-[26px] h-[38px] w-full rounded-[5px] bg-[#1F8F4C] text-[14px] font-[700] text-white transition hover:bg-[#187b40] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1F8F4C]"
+            className="mt-[28px] h-[43px] w-full rounded-[5px] bg-[#1F8F4C] text-[15px] font-[800] text-white transition hover:bg-[#187b40] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1F8F4C]"
           >
             Verify &amp; Reset Password
           </button>
         </form>
 
-        <p className="mt-[18px] text-center text-[13px] font-[400] leading-[18px] text-[#a4a4a4]">
+        <p className="mt-[18px] text-center text-[14px] font-[400] leading-[20px] text-[#a4a4a4]">
           Can&apos;t remember your answer?{' '}
           <a href="#support" className="text-[#ff7d82] transition hover:text-[#f25f69] focus-visible:rounded-[4px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F8F4C]">
             Contact Support
@@ -227,7 +241,9 @@ function UserIcon() {
   )
 }
 
-function RegisterField({ id, label, icon, type = 'text', placeholder, value, onChange, error }) {
+function RegisterField({ id, label, icon, type = 'text', placeholder, value, onChange, onBlur, error, autoComplete, inputMode }) {
+  const errorId = `${id}-error`
+
   return (
     <label htmlFor={id} className="block">
       <span className="mb-[8px] block text-[12px] font-[700] leading-[17px] text-[#17213c]">{label}</span>
@@ -238,13 +254,17 @@ function RegisterField({ id, label, icon, type = 'text', placeholder, value, onC
           type={type}
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
           placeholder={placeholder}
           aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+          autoComplete={autoComplete}
+          inputMode={inputMode}
           className="h-full min-w-0 flex-1 bg-transparent text-[12px] text-[#555555] outline-none placeholder:text-[#596177]"
         />
       </span>
       {error && (
-        <p className="mt-[5px] text-[11px] font-[500] leading-[15px] text-[#d33f49]" role="alert">
+        <p id={errorId} className="mt-[5px] text-[11px] font-[500] leading-[15px] text-[#d33f49]" role="alert" aria-live="polite">
           {error}
         </p>
       )}
@@ -252,7 +272,9 @@ function RegisterField({ id, label, icon, type = 'text', placeholder, value, onC
   )
 }
 
-function RegistrationPasswordField({ id, label, value, onChange, isVisible, onToggleVisible, error }) {
+function RegistrationPasswordField({ id, label, value, onChange, isVisible, onToggleVisible, error, autoComplete, children }) {
+  const errorId = `${id}-error`
+
   return (
     <label htmlFor={id} className="block">
       <span className="mb-[8px] block text-[12px] font-[700] leading-[17px] text-[#17213c]">{label}</span>
@@ -265,6 +287,8 @@ function RegistrationPasswordField({ id, label, value, onChange, isVisible, onTo
           onChange={onChange}
           placeholder="••••••••••"
           aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+          autoComplete={autoComplete}
           className="h-full min-w-0 flex-1 bg-transparent text-[12px] text-[#555555] outline-none placeholder:text-[#596177]"
         />
         <button
@@ -276,8 +300,9 @@ function RegistrationPasswordField({ id, label, value, onChange, isVisible, onTo
           <EyeIcon isVisible={isVisible} />
         </button>
       </span>
+      {children}
       {error && (
-        <p className="mt-[5px] text-[11px] font-[500] leading-[15px] text-[#d33f49]" role="alert">
+        <p id={errorId} className="mt-[5px] text-[11px] font-[500] leading-[15px] text-[#d33f49]" role="alert" aria-live="polite">
           {error}
         </p>
       )}
@@ -346,16 +371,27 @@ function CountryFlagIcon({ country }) {
   )
 }
 
-function PhoneRegistrationContactField({ value, onChange, error }) {
+function PhoneContactField({
+  id = 'register-phone',
+  label = 'Phone Number',
+  value,
+  onChange,
+  selectedCountry,
+  onCountryChange,
+  error,
+  placeholder = '+91 8584589416',
+  listboxId = 'register-phone-country-listbox',
+  optionIdPrefix = 'country-code-option',
+}) {
   const defaultCountry = countryDialCodes.find((country) => country.name === 'India') || countryDialCodes[0]
-  const [selectedCountry, setSelectedCountry] = useState(defaultCountry)
+  const [internalSelectedCountry, setInternalSelectedCountry] = useState(defaultCountry)
+  const activeCountry = selectedCountry || internalSelectedCountry
   const [isOpen, setIsOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
   const [highlightedIndex, setHighlightedIndex] = useState(0)
   const dropdownRef = useRef(null)
   const buttonRef = useRef(null)
   const searchInputRef = useRef(null)
-  const listboxId = 'register-phone-country-listbox'
   const normalizedSearch = searchValue.trim().toLowerCase()
   const filteredCountries = normalizedSearch
     ? countryDialCodes.filter((country) => (
@@ -390,7 +426,8 @@ function PhoneRegistrationContactField({ value, onChange, error }) {
   }, [isOpen])
 
   const selectCountry = (country) => {
-    setSelectedCountry(country)
+    setInternalSelectedCountry(country)
+    onCountryChange?.(country)
     setIsOpen(false)
     setSearchValue('')
     buttonRef.current?.focus()
@@ -441,7 +478,7 @@ function PhoneRegistrationContactField({ value, onChange, error }) {
 
   return (
     <div className="block">
-      <label htmlFor="register-phone" className="mb-[8px] block text-[12px] font-[700] leading-[17px] text-[#17213c]">Phone Number</label>
+      <label htmlFor={id} className="mb-[8px] block text-[12px] font-[700] leading-[17px] text-[#17213c]">{label}</label>
       <span className={`relative flex h-[43px] items-center gap-[10px] rounded-[2px] bg-white px-[14px] shadow-[0_1px_14px_rgba(0,0,0,0.035)] transition focus-within:ring-2 focus-within:ring-[#1F8F4C]/20 ${error ? 'ring-1 ring-[#d33f49]' : ''}`}>
         <PhoneIcon />
         <span ref={dropdownRef} className="relative flex h-full shrink-0 items-center">
@@ -463,8 +500,8 @@ function PhoneRegistrationContactField({ value, onChange, error }) {
             onKeyDown={handleButtonKeyDown}
             className="flex h-full items-center gap-[4px] border-r border-[#d8dde3] pr-[10px] text-[12px] font-[600] text-[#555555] outline-none transition hover:text-[#1F8F4C] focus-visible:rounded-[2px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1F8F4C]"
           >
-            <CountryFlagIcon country={selectedCountry} />
-            <span>{selectedCountry.dialCode}</span>
+            <CountryFlagIcon country={activeCountry} />
+            <span>{activeCountry.dialCode}</span>
             <svg viewBox="0 0 16 16" aria-hidden="true" className="h-[11px] w-[11px] text-[#7b7b7b]">
               <path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -482,7 +519,7 @@ function PhoneRegistrationContactField({ value, onChange, error }) {
                 }}
                 onKeyDown={handleSearchKeyDown}
                 aria-controls={listboxId}
-                aria-activedescendant={filteredCountries[highlightedIndex] ? `country-code-option-${highlightedIndex}` : undefined}
+                aria-activedescendant={filteredCountries[highlightedIndex] ? `${optionIdPrefix}-${highlightedIndex}` : undefined}
                 aria-label="Search country code"
                 className="h-[34px] w-full rounded-[2px] border border-[#d8dde3] bg-white px-[10px] text-[12px] text-[#555555] outline-none transition placeholder:text-[#596177] focus:border-[#1F8F4C] focus:ring-2 focus:ring-[#1F8F4C]/15"
                 placeholder="Search country"
@@ -496,12 +533,12 @@ function PhoneRegistrationContactField({ value, onChange, error }) {
                 {filteredCountries.length ? (
                   filteredCountries.map((country, index) => {
                     const isHighlighted = highlightedIndex === index
-                    const isSelected = selectedCountry.name === country.name && selectedCountry.dialCode === country.dialCode
+                    const isSelected = activeCountry.name === country.name && activeCountry.dialCode === country.dialCode
 
                     return (
                       <button
                         key={`${country.name}-${country.dialCode}`}
-                        id={`country-code-option-${index}`}
+                        id={`${optionIdPrefix}-${index}`}
                         type="button"
                         role="option"
                         aria-selected={isSelected}
@@ -524,17 +561,34 @@ function PhoneRegistrationContactField({ value, onChange, error }) {
           )}
         </span>
         <input
-          id="register-phone"
+          id={id}
           type="tel"
           value={value}
           onChange={onChange}
-          placeholder="+91 8584589416"
+          onBeforeInput={(event) => {
+            if (event.data && /\D/.test(event.data)) {
+              event.preventDefault()
+            }
+          }}
+          onPaste={(event) => {
+            const pastedValue = event.clipboardData.getData('text')
+
+            if (/\D/.test(pastedValue)) {
+              event.preventDefault()
+              onChange({ target: { value: sanitizePhoneNumber(`${value}${pastedValue}`) } })
+            }
+          }}
+          placeholder={placeholder}
           aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${id}-error` : undefined}
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={15}
           className="h-full min-w-0 flex-1 bg-transparent text-[12px] text-[#555555] outline-none placeholder:text-[#596177]"
         />
       </span>
       {error && (
-        <p className="mt-[5px] text-[11px] font-[500] leading-[15px] text-[#d33f49]" role="alert">
+        <p id={`${id}-error`} className="mt-[5px] text-[11px] font-[500] leading-[15px] text-[#d33f49]" role="alert" aria-live="polite">
           {error}
         </p>
       )}
@@ -542,10 +596,24 @@ function PhoneRegistrationContactField({ value, onChange, error }) {
   )
 }
 
+function PhoneRegistrationContactField({ value, onChange, selectedCountry, onCountryChange, error }) {
+  return (
+    <PhoneContactField
+      value={value}
+      onChange={onChange}
+      selectedCountry={selectedCountry}
+      onCountryChange={onCountryChange}
+      error={error}
+    />
+  )
+}
+
 function CreateAccountForm({ onLogin, onVerifyAccount }) {
+  const defaultCountry = countryDialCodes.find((country) => country.name === 'India') || countryDialCodes[0]
   const [registrationMethod, setRegistrationMethod] = useState('phone')
   const [fullName, setFullName] = useState('')
   const [contact, setContact] = useState('')
+  const [selectedCountry, setSelectedCountry] = useState(defaultCountry)
   const [registerPassword, setRegisterPassword] = useState('')
   const [confirmRegisterPassword, setConfirmRegisterPassword] = useState('')
   const [securityQuestion, setSecurityQuestion] = useState('')
@@ -556,29 +624,34 @@ function CreateAccountForm({ onLogin, onVerifyAccount }) {
   const [submitted, setSubmitted] = useState(false)
 
   const isPhoneRegistration = registrationMethod === 'phone'
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  const passwordIsStrong = registerPassword.length >= 8 && registerPassword.length <= 12 && /[A-Za-z]/.test(registerPassword) && /\d/.test(registerPassword)
-  const contactError = isPhoneRegistration
-    ? (contact && contact.replace(/\D/g, '').length < 10 ? 'Enter a valid mobile number.' : '')
-    : (contact && !emailPattern.test(contact) ? 'Enter a valid email address.' : '')
-  const passwordError = registerPassword && !passwordIsStrong ? 'Password must be 8-12 characters and include a number.' : ''
-  const confirmPasswordError = confirmRegisterPassword && registerPassword !== confirmRegisterPassword ? 'Passwords must match.' : ''
-  const canCreateAccount = fullName.trim()
-    && contact.trim()
-    && !contactError
-    && passwordIsStrong
-    && confirmRegisterPassword === registerPassword
-    && securityQuestion
-    && securityAnswer.trim()
-    && termsAccepted
-
-  const requiredError = (value) => submitted && !value.trim() ? 'Required.' : ''
+  const passwordStrength = getPasswordStrength(registerPassword)
+  const registrationValidation = validateRegistrationPayload({
+    registrationMethod,
+    fullName,
+    contact,
+    country: selectedCountry,
+    password: registerPassword,
+    confirmPassword: confirmRegisterPassword,
+    securityQuestion,
+    securityAnswer,
+    termsAccepted,
+  })
+  const fieldError = (field, value) => (submitted || String(value ?? '').length > 0 ? registrationValidation.errors[field] : '')
+  const passwordError = fieldError('password', registerPassword)
+  const confirmPasswordError = submitted || confirmRegisterPassword ? registrationValidation.errors.confirmPassword : ''
+  const securityQuestionError = submitted || securityQuestion ? registrationValidation.errors.securityQuestion : ''
+  const securityAnswerError = submitted || securityAnswer ? registrationValidation.errors.securityAnswer : ''
+  const termsError = submitted ? registrationValidation.errors.terms : ''
+  const canCreateAccount = registrationValidation.isValid
 
   const handleSubmit = (event) => {
     event.preventDefault()
     setSubmitted(true)
 
-    if (canCreateAccount) {
+    if (registrationValidation.isValid) {
+      setFullName(registrationValidation.sanitized.fullName)
+      setContact(isPhoneRegistration ? sanitizePhoneNumber(contact) : registrationValidation.sanitized.contact)
+      setSecurityAnswer(registrationValidation.sanitized.securityAnswer)
       onVerifyAccount(registrationMethod)
     }
   }
@@ -620,21 +693,25 @@ function CreateAccountForm({ onLogin, onVerifyAccount }) {
           placeholder="User Learner"
           value={fullName}
           onChange={(event) => setFullName(event.target.value)}
-          error={requiredError(fullName)}
+          onBlur={() => setFullName(sanitizeText(fullName))}
+          autoComplete="name"
+          error={fieldError('fullName', fullName)}
         />
 
         <div className="mt-[16px]">
           {isPhoneRegistration ? (
             <PhoneRegistrationContactField
               value={contact}
-              onChange={(event) => setContact(event.target.value)}
-              error={requiredError(contact) || contactError}
+              onChange={(event) => setContact(sanitizePhoneNumber(event.target.value))}
+              selectedCountry={selectedCountry}
+              onCountryChange={setSelectedCountry}
+              error={fieldError('contact', contact)}
             />
           ) : (
             <EmailRegistrationContactField
               value={contact}
               onChange={(event) => setContact(event.target.value)}
-              error={requiredError(contact) || contactError}
+              error={fieldError('contact', contact)}
             />
           )}
         </div>
@@ -647,8 +724,23 @@ function CreateAccountForm({ onLogin, onVerifyAccount }) {
             onChange={(event) => setRegisterPassword(event.target.value)}
             isVisible={showRegisterPassword}
             onToggleVisible={() => setShowRegisterPassword((current) => !current)}
-            error={passwordError || (submitted && !registerPassword ? 'Required.' : '')}
-          />
+            autoComplete="new-password"
+            error={passwordError}
+          >
+            <div className="mt-[7px]" aria-live="polite">
+              <div className="grid grid-cols-5 gap-[4px]" aria-hidden="true">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <span
+                    key={index}
+                    className={`h-[4px] rounded-full ${index < passwordStrength.score ? (passwordStrength.tone === 'strong' ? 'bg-[#1F8F4C]' : passwordStrength.tone === 'medium' ? 'bg-[#d89b21]' : 'bg-[#d33f49]') : 'bg-[#d8dde3]'}`}
+                  />
+                ))}
+              </div>
+              <p className="mt-[4px] text-[11px] font-[600] leading-[15px] text-[#596177]">
+                Strength: {passwordStrength.label}
+              </p>
+            </div>
+          </RegistrationPasswordField>
           <RegistrationPasswordField
             id="register-confirm-password"
             label="Confirm Password"
@@ -656,7 +748,8 @@ function CreateAccountForm({ onLogin, onVerifyAccount }) {
             onChange={(event) => setConfirmRegisterPassword(event.target.value)}
             isVisible={showConfirmRegisterPassword}
             onToggleVisible={() => setShowConfirmRegisterPassword((current) => !current)}
-            error={confirmPasswordError || (submitted && !confirmRegisterPassword ? 'Required.' : '')}
+            autoComplete="new-password"
+            error={confirmPasswordError}
           />
         </div>
 
@@ -666,7 +759,9 @@ function CreateAccountForm({ onLogin, onVerifyAccount }) {
             id="register-security-question"
             value={securityQuestion}
             onChange={(event) => setSecurityQuestion(event.target.value)}
-            className={`h-[43px] w-full rounded-[4px] border border-[#d8dde3] bg-white px-[14px] text-[12px] text-[#111111] outline-none transition focus:border-[#1F8F4C] focus:ring-2 focus:ring-[#1F8F4C]/15 ${submitted && !securityQuestion ? 'ring-1 ring-[#d33f49]' : ''}`}
+            aria-invalid={Boolean(securityQuestionError)}
+            aria-describedby={securityQuestionError ? 'register-security-question-error' : undefined}
+            className={`h-[43px] w-full rounded-[4px] border border-[#d8dde3] bg-white px-[14px] text-[12px] text-[#111111] outline-none transition focus:border-[#1F8F4C] focus:ring-2 focus:ring-[#1F8F4C]/15 ${securityQuestionError ? 'ring-1 ring-[#d33f49]' : ''}`}
           >
             <option value="">Select a Security Question</option>
             {securityQuestions.map((question) => (
@@ -675,18 +770,22 @@ function CreateAccountForm({ onLogin, onVerifyAccount }) {
               </option>
             ))}
           </select>
-          {submitted && !securityQuestion && <p className="mt-[5px] text-[11px] font-[500] text-[#d33f49]">Required.</p>}
+          {securityQuestionError && <p id="register-security-question-error" className="mt-[5px] text-[11px] font-[500] text-[#d33f49]" role="alert" aria-live="polite">{securityQuestionError}</p>}
         </label>
 
         <input
           type="text"
           value={securityAnswer}
           onChange={(event) => setSecurityAnswer(event.target.value)}
+          onBlur={() => setSecurityAnswer(sanitizeText(securityAnswer))}
           placeholder="Kumar Gandham"
           aria-label="Security answer"
-          className={`mt-[10px] h-[43px] w-full rounded-[4px] border border-[#d8dde3] bg-white px-[14px] text-[12px] text-[#111111] outline-none transition placeholder:text-[#596177] focus:border-[#1F8F4C] focus:ring-2 focus:ring-[#1F8F4C]/15 ${submitted && !securityAnswer.trim() ? 'ring-1 ring-[#d33f49]' : ''}`}
+          aria-invalid={Boolean(securityAnswerError)}
+          aria-describedby={securityAnswerError ? 'register-security-answer-error' : undefined}
+          autoComplete="off"
+          className={`mt-[10px] h-[43px] w-full rounded-[4px] border border-[#d8dde3] bg-white px-[14px] text-[12px] text-[#111111] outline-none transition placeholder:text-[#596177] focus:border-[#1F8F4C] focus:ring-2 focus:ring-[#1F8F4C]/15 ${securityAnswerError ? 'ring-1 ring-[#d33f49]' : ''}`}
         />
-        {submitted && !securityAnswer.trim() && <p className="mt-[5px] text-[11px] font-[500] text-[#d33f49]">Required.</p>}
+        {securityAnswerError && <p id="register-security-answer-error" className="mt-[5px] text-[11px] font-[500] text-[#d33f49]" role="alert" aria-live="polite">{securityAnswerError}</p>}
 
         <label htmlFor="register-terms" className="mt-[14px] flex items-center gap-[8px] text-[12px] font-[400] leading-[17px] text-[#1f2933]">
           <input
@@ -703,7 +802,7 @@ function CreateAccountForm({ onLogin, onVerifyAccount }) {
             <a href="#privacy" className="text-[#1F8F4C] underline underline-offset-2">privacy policy.</a>
           </span>
         </label>
-        {submitted && !termsAccepted && <p className="mt-[5px] text-[11px] font-[500] text-[#d33f49]">You must accept the terms.</p>}
+        {termsError && <p className="mt-[5px] text-[11px] font-[500] text-[#d33f49]" role="alert" aria-live="polite">{termsError}</p>}
 
         <button
           type="submit"
@@ -847,7 +946,6 @@ function VerifyAccountOtpForm({ onBack, onVerified }) {
             <div className="flex gap-[13px]">
               {otpDigits.map((digit, index) => (
                 <input
-                  // eslint-disable-next-line react/no-array-index-key
                   key={index}
                   ref={(element) => {
                     inputRefs.current[index] = element
@@ -1381,24 +1479,18 @@ function ForgotPasswordForm({ onBack, onResetRequested }) {
 
           <div className="my-[23px] text-center text-[13px] font-[400] leading-[19px] text-[#858585]">Or Reset with</div>
 
-          <label htmlFor="reset-mobile" className="block">
-            <span className="mb-[8px] block text-[12px] font-[700] leading-[17px] text-[#17213c]">Mobile Number</span>
-            <span className="flex h-[43px] items-center gap-[10px] rounded-[2px] bg-white px-[13px] shadow-[0_1px_14px_rgba(0,0,0,0.035)] transition focus-within:ring-2 focus-within:ring-[#1F8F4C]/20">
-              <PhoneIcon />
-              <input
-                id="reset-mobile"
-                type="tel"
-                value={mobileNumber}
-                onChange={(event) => {
-                  setMobileNumber(event.target.value)
-                  setError('')
-                }}
-                placeholder="+91 8524678158"
-                aria-label="Mobile number"
-                className="h-full min-w-0 flex-1 bg-transparent text-[12px] text-[#555555] outline-none placeholder:text-[#596177]"
-              />
-            </span>
-          </label>
+          <PhoneContactField
+            id="reset-mobile"
+            label="Mobile Number"
+            value={mobileNumber}
+            onChange={(event) => {
+              setMobileNumber(event.target.value)
+              setError('')
+            }}
+            placeholder="8524678158"
+            listboxId="reset-phone-country-listbox"
+            optionIdPrefix="reset-country-code-option"
+          />
 
           {error && (
             <p className="mt-[10px] text-[12px] font-[600] leading-[17px] text-[#d33f49]" role="alert">
@@ -1539,7 +1631,6 @@ function OtpVerificationForm({ onBack, onVerified }) {
             <div className="flex gap-[13px]">
               {otpDigits.map((digit, index) => (
                 <input
-                  // eslint-disable-next-line react/no-array-index-key
                   key={index}
                   ref={(element) => {
                     inputRefs.current[index] = element
@@ -1823,13 +1914,13 @@ function PasswordResetSuccessModal({ isOpen, onClose, onGoToLogin }) {
           Congratulations!
         </h2>
         <p id="password-reset-success-description" className="mt-[6px] text-left text-[12px] font-[400] leading-[18px] text-[#6f6f6f]">
-          Your Password has been changed successfully.
+          Your password has been changed successfully and your account is unlocked.
         </p>
 
         <SuccessConfettiIcon />
 
         <p className="mt-[18px] text-center text-[16px] font-[500] leading-[22px] text-[#222222]">
-          Continue with login to view information
+          Continue with login to view information.
         </p>
 
         <button
@@ -1935,7 +2026,7 @@ function RegistrationSuccessModal({ isOpen, onClose, onGoToDashboard }) {
   )
 }
 
-function LoginPage({ isModal = false }) {
+function LoginPage({ isModal = false, initialAuthView = 'login', onAuthViewChange }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(true)
@@ -1943,10 +2034,13 @@ function LoginPage({ isModal = false }) {
   const [captchaIndex, setCaptchaIndex] = useState(0)
   const [captchaInput, setCaptchaInput] = useState('')
   const [message, setMessage] = useState('')
-  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false)
+  const [isAccountBlockedOpen, setIsAccountBlockedOpen] = useState(false)
   const [isPasswordResetSuccessOpen, setIsPasswordResetSuccessOpen] = useState(false)
   const [isRegistrationSuccessOpen, setIsRegistrationSuccessOpen] = useState(false)
-  const [authView, setAuthView] = useState('login')
+  const [failedAttempts, setFailedAttempts] = useState(0)
+  const [isAccountLocked, setIsAccountLocked] = useState(false)
+  const [isAccountUnlocked, setIsAccountUnlocked] = useState(false)
+  const [authView, setAuthView] = useState(initialAuthView)
 
   const isRegisterView = authView === 'register'
   const isLoginView = authView === 'login'
@@ -1955,7 +2049,11 @@ function LoginPage({ isModal = false }) {
 
   useEffect(() => {
     window.requestAnimationFrame(() => AOS.refreshHard())
-  }, [authView, isForgotPasswordOpen, isPasswordResetSuccessOpen, isRegistrationSuccessOpen])
+  }, [authView, isAccountBlockedOpen, isPasswordResetSuccessOpen, isRegistrationSuccessOpen])
+
+  useEffect(() => {
+    onAuthViewChange?.(authView)
+  }, [authView, onAuthViewChange])
 
   const refreshCaptcha = () => {
     setCaptchaIndex((current) => (current + 1) % captchaValues.length)
@@ -1993,7 +2091,41 @@ function LoginPage({ isModal = false }) {
       return
     }
 
-    setMessage(`Login submitted${rememberMe ? ' with remember me enabled' : ''}.`)
+    if (isAccountLocked) {
+      setIsAccountBlockedOpen(true)
+      setMessage('Account locked. Reset your password to continue.')
+      return
+    }
+
+    setIsAccountUnlocked(false)
+
+    const nextFailedAttempts = failedAttempts + 1
+    setFailedAttempts(nextFailedAttempts)
+
+    if (nextFailedAttempts >= 5) {
+      setIsAccountLocked(true)
+      setIsAccountBlockedOpen(true)
+      setMessage('Account locked after 5 failed login attempts.')
+      return
+    }
+
+    if (nextFailedAttempts === 4) {
+      setMessage('Warning: Invalid credentials. One more failed attempt will lock your account.')
+      return
+    }
+
+    setMessage(`Invalid credentials. Failed attempt ${nextFailedAttempts} of 5.`)
+  }
+
+  const handlePasswordResetComplete = () => {
+    setIsPasswordResetSuccessOpen(false)
+    setIsAccountLocked(false)
+    setIsAccountUnlocked(true)
+    setFailedAttempts(0)
+    setPassword('')
+    setCaptchaInput('')
+    setMessage('')
+    setAuthView('login')
   }
 
   const handleRoleContinue = (role) => {
@@ -2113,7 +2245,7 @@ function LoginPage({ isModal = false }) {
                 type="button"
                 onClick={() => {
                   setMessage('')
-                  setIsForgotPasswordOpen(true)
+                  setAuthView('forgot')
                 }}
                 className="text-[#ff7d82] transition hover:text-[#f24f59] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
@@ -2159,8 +2291,14 @@ function LoginPage({ isModal = false }) {
               </div>
             </div>
 
+            {isAccountUnlocked && (
+              <p className="rounded-[4px] border border-[#bde8ce] bg-[#effaf3] px-[12px] py-[9px] text-[14px] font-[700] leading-[20px] text-[#187b40]" role="status">
+                Account unlocked. Login with your new password.
+              </p>
+            )}
+
             {message && (
-              <p className="text-[14px] font-[600] leading-[20px] text-brand" role="status">
+              <p className={`text-[14px] font-[600] leading-[20px] ${message.includes('Invalid') || message.includes('Warning') || message.includes('locked') ? 'text-[#d33f49]' : 'text-brand'}`} role="status">
                 {message}
               </p>
             )}
@@ -2235,21 +2373,18 @@ function LoginPage({ isModal = false }) {
         />
       </section>
 
-      <ForgotPasswordModal
-        isOpen={isForgotPasswordOpen}
-        onClose={() => setIsForgotPasswordOpen(false)}
+      <AccountBlockedModal
+        isOpen={isAccountBlockedOpen}
+        onClose={() => setIsAccountBlockedOpen(false)}
         onVerified={() => {
-          setIsForgotPasswordOpen(false)
+          setIsAccountBlockedOpen(false)
           setAuthView('forgot')
         }}
       />
       <PasswordResetSuccessModal
         isOpen={isPasswordResetSuccessOpen}
-        onClose={() => setIsPasswordResetSuccessOpen(false)}
-        onGoToLogin={() => {
-          setIsPasswordResetSuccessOpen(false)
-          setAuthView('login')
-        }}
+        onClose={handlePasswordResetComplete}
+        onGoToLogin={handlePasswordResetComplete}
       />
       <RegistrationSuccessModal
         isOpen={isRegistrationSuccessOpen}

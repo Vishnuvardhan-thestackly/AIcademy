@@ -7,6 +7,9 @@ import LoginPage from './pages/LoginPage'
 
 function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false)
+  const [initialAuthView, setInitialAuthView] = useState('login')
+  const [currentAuthView, setCurrentAuthView] = useState('login')
+  const shouldShowModalClose = currentAuthView === 'login' || currentAuthView === 'register'
 
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -44,7 +47,18 @@ function App() {
 
   return (
     <>
-      <MainLayout onLoginClick={() => setIsLoginOpen(true)}>
+      <MainLayout
+        onLoginClick={() => {
+          setInitialAuthView('login')
+          setCurrentAuthView('login')
+          setIsLoginOpen(true)
+        }}
+        onSignupClick={() => {
+          setInitialAuthView('register')
+          setCurrentAuthView('register')
+          setIsLoginOpen(true)
+        }}
+      >
         <LandingPage />
       </MainLayout>
 
@@ -61,15 +75,22 @@ function App() {
           }}
         >
           <div className="absolute inset-0 overflow-hidden bg-white">
-            <button
-              type="button"
-              aria-label="Close login"
-              onClick={() => setIsLoginOpen(false)}
-              className="absolute left-[18px] top-[18px] z-10 flex h-[38px] w-[38px] items-center justify-center rounded-full bg-white/95 text-[24px] leading-none text-[#202020] shadow-[0_4px_14px_rgba(0,0,0,0.12)] transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-            >
-              x
-            </button>
-            <LoginPage isModal />
+            {shouldShowModalClose && (
+              <button
+                type="button"
+                aria-label="Back to home"
+                onClick={() => setIsLoginOpen(false)}
+                className="absolute left-[18px] top-[18px] z-10 flex h-[38px] items-center gap-[9px] rounded-full bg-white/95 px-[13px] text-[15px] font-[600] leading-none text-[#202020] shadow-[0_4px_14px_rgba(0,0,0,0.12)] transition hover:bg-white hover:text-brand focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+              >
+                <span className="flex h-[17px] w-[17px] items-center justify-center rounded-full border border-current">
+                  <svg viewBox="0 0 16 16" aria-hidden="true" className="h-[11px] w-[11px]">
+                    <path d="M9.8 4.2 6 8l3.8 3.8M6.5 8h4.2" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                Back
+              </button>
+            )}
+            <LoginPage isModal initialAuthView={initialAuthView} onAuthViewChange={setCurrentAuthView} />
           </div>
         </div>
       )}

@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
-const languages = ['English', 'Deutch', 'Nederland', 'Portuguese', 'Indonesia', 'Turkey']
+const languages = ['English', 'Deutsch', 'Nederlands', 'Portuguese', 'Indonesian', 'Turkish']
 
 function LanguageSelector() {
   const [isOpen, setIsOpen] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0])
   const [menuPosition, setMenuPosition] = useState({ left: 0, top: 0 })
   const buttonRef = useRef(null)
@@ -51,8 +50,6 @@ function LanguageSelector() {
   }, [updateMenuPosition])
 
   useEffect(() => {
-    setIsMounted(true)
-
     return () => {
       if (frameRef.current) {
         window.cancelAnimationFrame(frameRef.current)
@@ -109,7 +106,7 @@ function LanguageSelector() {
     setIsOpen(false)
   }
 
-  const menu = isOpen && isMounted ? createPortal(
+  const menu = isOpen ? createPortal(
     <div
       ref={menuRef}
       id={listboxId}

@@ -1,8 +1,11 @@
 {
   "name": "aicademy",
+  "type": "module",
   "homepage": "https://vishnuvardhan015.github.io/AIcademy",
   "scripts": {
     "dev": "vite",
+    "lint": "eslint .",
+    "test": "node --test",
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
